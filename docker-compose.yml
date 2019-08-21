@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  openldap:
+    image: zentekmx/openldap:latest
+    ports:
+    - "389:389"
+    volumes:
+    - ${OPENLDAP_VOLUME:-openldap-volume}:/var/lib/ldap:Z
+
+  mysql:
+    image: mysql:5.7
+    ports:
+    - "3306:3306"
+    volumes:
+    - ${MYSQL_VOLUME:-mysql-volume}:/var/lib/mysql:Z
+    environment:
+    - MYSQL_USER=${MYSQL_USER}
+    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+    - MYSQL_DATABASE=${MYSQL_DB}
+
+  suitecrm:
+    image: zentekmx/suitecrm:latest
+    depends_on:
+    - openldap
+    - mysql
+    ports:
+    - "80:80"
+    environment:
+    - CURRENCY_ISO4217=MXN
+    - CURRENCY_NAME=MX Peso
+    - DATE_FORMAT=d-m-Y
+    - EXPORT_CHARSET=ISO-8859-1
+    - DEFAULT_LANGUAGE=es_mx
+    - DATABASE_TYPE=mysql
+    - DATABASE_HOST=mysql
+    - DB_ADMIN_PASSWORD=${MYSQL_PASSWORD}
+    - DB_ADMIN_USERNAME=${MYSQL_USER}
+    - DATABASE_NAME=${MYSQL_DB}
+    - SITE_USERNAME=ztadmin
+    - SITE_PASSWORD=secret
+    - SITE_URL=${SITE_URL}
+    - SYSTEM_NAME=Zentek CRM
+
+volumes:
+  openldap-volume:
+  mysql-volume:
