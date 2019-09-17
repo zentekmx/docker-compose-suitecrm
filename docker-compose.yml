@@ -7,6 +7,8 @@ services:
     - "389:389"
     volumes:
     - ${OPENLDAP_VOLUME:-openldap-volume}:/var/lib/ldap:Z
+    labels:
+    - traefik.enable=false
 
   mysql:
     image: mysql:5.7
@@ -19,6 +21,8 @@ services:
     - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
     - MYSQL_DATABASE=${MYSQL_DB}
+    labels:
+    - traefik.enable=false
 
   suitecrm:
     image: zentekmx/suitecrm:latest
@@ -26,7 +30,7 @@ services:
     - openldap
     - mysql
     ports:
-    - "80:80"
+    - "8020:80"
     environment:
     - CURRENCY_ISO4217=MXN
     - CURRENCY_NAME=MX Peso
@@ -42,7 +46,49 @@ services:
     - SITE_PASSWORD=secret
     - SITE_URL=${SITE_URL}
     - SYSTEM_NAME=Zentek CRM
+    labels:
+    - traefik.frontend.rule=Host:suitecrm.localhost
+
+  joomla:
+    image: joomla:latest
+    links:
+    - mysql
+    depends_on:
+    - mysql
+    ports:
+    - "8040:80"
+    environment:
+    - JOOMLA_DB_HOST=mysql
+    - JOOMLA_DB_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+    - ${JOOMLA_VOLUME:-joomla-volume}:/var/www/html
+    labels:
+    - traefik.frontend.rule=Host:joomla.localhost
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.8
+    links:
+    - mysql
+    depends_on:
+    - mysql
+    ports:
+    - "8060:80"
+    environment:
+    - PMA_HOST=mysql
+
+  reverse-proxy:
+    image: traefik:alpine
+    command: --api --docker
+    ports:
+    - "80:80"
+    - "8080:8080"
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ./traefik.toml:/traefik.toml
+    labels:
+    - traefik.frontend.rule=Host:phpmyadmin.localhost
 
 volumes:
   openldap-volume:
   mysql-volume:
+  joomla-volume:

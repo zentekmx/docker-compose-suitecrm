@@ -7,14 +7,15 @@ services:
     - "389:389"
     volumes:
     - ${OPENLDAP_VOLUME:-openldap-volume}:/var/lib/ldap:Z
+    labels:
+    - traefik.enable=false
 
   suitecrm:
     image: zentekmx/suitecrm:latest
     depends_on:
     - openldap
-    - mysql
     ports:
-    - "80:80"
+    - "8020:80"
     environment:
     - CURRENCY_ISO4217=MXN
     - CURRENCY_NAME=MX Peso
@@ -30,7 +31,28 @@ services:
     - SITE_PASSWORD=secret
     - SITE_URL=${SITE_URL}
     - SYSTEM_NAME=Zentek CRM
+    labels:
+    - traefik.frontend.rule=Host:suitecrm.localhost
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.8
+    ports:
+    - "8060:80"
+    environment:
+    - PMA_HOST=${MYSQL_HOST}
+
+  reverse-proxy:
+    image: traefik:alpine
+    command: --api --docker
+    ports:
+    - "80:80"
+    - "8080:8080"
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - ./traefik.toml:/traefik.toml
+    labels:
+    - traefik.frontend.rule=Host:phpmyadmin.localhost
 
 volumes:
   openldap-volume:
-  mysql-volume:
+  joomla-volume:
