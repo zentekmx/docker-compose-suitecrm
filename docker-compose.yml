@@ -8,7 +8,7 @@ services:
     volumes:
     - ${OPENLDAP_VOLUME:-openldap-volume}:/var/lib/ldap:Z
     labels:
-    - traefik.enable=false
+    - "traefik.enable=false"
 
   mysql:
     image: mysql:5.7
@@ -22,7 +22,7 @@ services:
     - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
     - MYSQL_DATABASE=${MYSQL_DB}
     labels:
-    - traefik.enable=false
+    - "traefik.enable=false"
 
   suitecrm:
     image: zentekmx/suitecrm:latest
@@ -44,10 +44,12 @@ services:
     - DATABASE_NAME=${MYSQL_DB}
     - SITE_USERNAME=ztadmin
     - SITE_PASSWORD=secret
-    - SITE_URL=${SITE_URL}
+    - SITE_URL=http://suitecrm.${DOMAIN}
     - SYSTEM_NAME=Zentek CRM
     labels:
-    - traefik.frontend.rule=Host:suitecrm.localhost
+    - "traefik.enable=true"
+    - "traefik.http.routers.suitecrm.rule=Host(`suitecrm.${DOMAIN}`)"
+    - "traefik.http.routers.suitecrm.entrypoints=web"
 
   joomla:
     image: joomla:latest
@@ -63,30 +65,21 @@ services:
     volumes:
     - ${JOOMLA_VOLUME:-joomla-volume}:/var/www/html
     labels:
-    - traefik.frontend.rule=Host:joomla.localhost
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:4.8
-    links:
-    - mysql
-    depends_on:
-    - mysql
-    ports:
-    - "8060:80"
-    environment:
-    - PMA_HOST=mysql
+    - "traefik.enable=true"
+    - "traefik.http.routers.joomla.rule=Host(`joomla.${DOMAIN}`)"
+    - "traefik.http.routers.joomla.entrypoints=web"
 
   reverse-proxy:
-    image: traefik:alpine
-    command: --api --docker
+    image: traefik:2.0
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
     ports:
     - "80:80"
     - "8080:8080"
     volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - ./traefik.toml:/traefik.toml
-    labels:
-    - traefik.frontend.rule=Host:phpmyadmin.localhost
+    - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
   openldap-volume:
