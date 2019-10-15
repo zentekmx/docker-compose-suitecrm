@@ -34,11 +34,11 @@ services:
     - DATABASE_NAME=${MYSQL_DB}
     - SITE_USERNAME=ztadmin
     - SITE_PASSWORD=secret
-    - SITE_URL=http://suitecrm.${DOMAIN}
+    - SITE_URL=http://${SUBDOMAIN}.${DOMAIN}
     - SYSTEM_NAME=Zentek CRM
     labels:
     - "traefik.enable=true"
-    - "traefik.http.routers.suitecrm.rule=Host(`suitecrm.${DOMAIN}`)"
+    - "traefik.http.routers.suitecrm.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
     - "traefik.http.routers.suitecrm.entrypoints=web"
 
   joomla:
