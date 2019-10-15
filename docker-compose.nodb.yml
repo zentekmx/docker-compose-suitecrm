@@ -1,19 +1,8 @@
 version: '3'
 
 services:
-  openldap:
-    image: zentekmx/openldap:latest
-    ports:
-    - "389:389"
-    volumes:
-    - ${OPENLDAP_VOLUME:-openldap-volume}:/var/lib/ldap:Z
-    labels:
-    - "traefik.enable=false"
-
   suitecrm:
     image: zentekmx/suitecrm:latest
-    depends_on:
-    - openldap
     ports:
     - "8020:80"
     environment:
@@ -57,11 +46,10 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
     ports:
-    - "80:80"
+    - "8000:80"
     - "8080:8080"
     volumes:
     - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
-  openldap-volume:
   joomla-volume:
