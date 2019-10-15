@@ -34,11 +34,11 @@ services:
     - DATABASE_NAME=${MYSQL_DB}
     - SITE_USERNAME=ztadmin
     - SITE_PASSWORD=secret
-    - SITE_URL=http://${SUBDOMAIN}.${DOMAIN}
+    - SITE_URL=http://${CRMSUBDOMAIN}.${DOMAIN}
     - SYSTEM_NAME=Zentek CRM
     labels:
     - "traefik.enable=true"
-    - "traefik.http.routers.suitecrm.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
+    - "traefik.http.routers.suitecrm.rule=Host(`${CRMSUBDOMAIN}.${DOMAIN}`)"
     - "traefik.http.routers.suitecrm.entrypoints=web"
 
   joomla:
@@ -56,7 +56,7 @@ services:
     - ${JOOMLA_VOLUME:-joomla-volume}:/var/www/html
     labels:
     - "traefik.enable=true"
-    - "traefik.http.routers.joomla.rule=Host(`joomla.${DOMAIN}`)"
+    - "traefik.http.routers.joomla.rule=Host(`${CMSSUBDOMAIN}.${DOMAIN}`)"
     - "traefik.http.routers.joomla.entrypoints=web"
 
   reverse-proxy:
