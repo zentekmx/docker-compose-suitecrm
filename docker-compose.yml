@@ -38,7 +38,6 @@ services:
     - elasticsearch
     depends_on:
     - mysql
-    - elasticsearch
     ports:
     - "8020:80"
     environment:

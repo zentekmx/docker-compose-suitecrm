@@ -21,8 +21,6 @@ services:
     image: zentekmx/suitecrm:latest
     links:
     - elasticsearch
-    depends_on:
-    - elasticsearch
     ports:
     - "8020:80"
     environment:
