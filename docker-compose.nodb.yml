@@ -1,6 +1,20 @@
 version: '3'
 
 services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
+    ports:
+    - "9200:9200"
+    volumes:
+    - elasticsearch-volume:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    environment:
+    - bootstrap.memory_lock=true
+    - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
   suitecrm:
     image: zentekmx/suitecrm:latest
     ports:
