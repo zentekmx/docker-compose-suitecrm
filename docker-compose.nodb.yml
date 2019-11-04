@@ -14,9 +14,15 @@ services:
     environment:
     - bootstrap.memory_lock=true
     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    labels:
+    - "traefik.enable=false"
 
   suitecrm:
     image: zentekmx/suitecrm:latest
+    links:
+    - elasticsearch
+    depends_on:
+    - elasticsearch
     ports:
     - "8020:80"
     environment:
@@ -66,4 +72,6 @@ services:
     - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
+  elasticsearch-volume:
+  suitecrm-volume:
   joomla-volume:

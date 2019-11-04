@@ -28,11 +28,17 @@ services:
     environment:
     - bootstrap.memory_lock=true
     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    labels:
+    - "traefik.enable=false"
 
   suitecrm:
     image: zentekmx/suitecrm:latest
+    links:
+    - mysql
+    - elasticsearch
     depends_on:
     - mysql
+    - elasticsearch
     ports:
     - "8020:80"
     environment:
@@ -87,4 +93,6 @@ services:
 
 volumes:
   mysql-volume:
+  elasticsearch-volume:
+  suitecrm-volume:
   joomla-volume:
