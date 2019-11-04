@@ -20,7 +20,7 @@ services:
     ports:
     - "9200:9200"
     volumes:
-    - elasticsearch-volume:/usr/share/elasticsearch/data
+    - ${ELASTICSEARCH_VOLUME}:-elasticsearch-volume:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
