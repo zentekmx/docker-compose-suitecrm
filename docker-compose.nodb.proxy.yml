@@ -1,18 +1,6 @@
 version: '3'
 
 services:
-  mysql:
-    image: mysql:5.7
-    ports:
-    - "3306:3306"
-    volumes:
-    - ${MYSQL_VOLUME:-mysql-volume}:/var/lib/mysql:Z
-    environment:
-    - MYSQL_USER=${MYSQL_USER}
-    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
-    - MYSQL_DATABASE=${MYSQL_DB}
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
     ports:
@@ -29,14 +17,13 @@ services:
     - xpack.security.enabled=false
     - bootstrap.memory_lock=true
     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    labels:
+    - "traefik.enable=false"
 
   suitecrm:
     image: zentekmx/suitecrm:latest
     links:
-    - mysql
     - elasticsearch
-    depends_on:
-    - mysql
     ports:
     - "8020:80"
     environment:
@@ -46,7 +33,7 @@ services:
     - EXPORT_CHARSET=ISO-8859-1
     - DEFAULT_LANGUAGE=es_mx
     - DATABASE_TYPE=mysql
-    - DATABASE_HOST=mysql
+    - DATABASE_HOST=${MYSQL_HOST}
     - DB_ADMIN_PASSWORD=${MYSQL_PASSWORD}
     - DB_ADMIN_USERNAME=${MYSQL_USER}
     - DATABASE_NAME=${MYSQL_DB}
@@ -54,8 +41,38 @@ services:
     - SITE_PASSWORD=secret
     - SITE_URL=http://${CRMSUBDOMAIN}.${DOMAIN}
     - SYSTEM_NAME=Zentek CRM
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.suitecrm.rule=Host(`${CRMSUBDOMAIN}.${DOMAIN}`)"
+    - "traefik.http.routers.suitecrm.entrypoints=web"
+
+  joomla:
+    image: joomla:latest
+    ports:
+    - "8040:80"
+    environment:
+    - JOOMLA_DB_HOST=${MYSQL_HOST}
+    - JOOMLA_DB_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+    - ${JOOMLA_VOLUME:-joomla-volume}:/var/www/html
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.joomla.rule=Host(`${CMSSUBDOMAIN}.${DOMAIN}`)"
+    - "traefik.http.routers.joomla.entrypoints=web"
+
+  reverse-proxy:
+    image: traefik:2.0
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+    - "8000:80"
+    - "8080:8080"
+    volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
-  mysql-volume:
   elasticsearch-volume:
   suitecrm-volume:
+  joomla-volume:
