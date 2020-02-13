@@ -31,14 +31,14 @@ services:
     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   suitecrm:
-    image: zentekmx/suitecrm:latest
+    image: zentekmx/suitecrm:${SVERSION}
     links:
     - mysql
     - elasticsearch
     depends_on:
     - mysql
     ports:
-    - "80:80"
+    - "${SPORT}:80"
     environment:
     - CURRENCY_ISO4217=MXN
     - CURRENCY_NAME=MX Peso
