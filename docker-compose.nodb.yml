@@ -23,7 +23,7 @@ services:
     links:
     - elasticsearch
     ports:
-    - "8020:80"
+    - "80:80"
     environment:
     - CURRENCY_ISO4217=MXN
     - CURRENCY_NAME=MX Peso
@@ -37,7 +37,7 @@ services:
     - DATABASE_NAME=${MYSQL_DB}
     - SITE_USERNAME=ztadmin
     - SITE_PASSWORD=secret
-    - SITE_URL=http://${CRMSUBDOMAIN}.${DOMAIN}
+    - SITE_URL=http://localhost
     - SYSTEM_NAME=Zentek CRM
 
 volumes:
