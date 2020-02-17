@@ -25,7 +25,7 @@ services:
     links:
     - elasticsearch
     ports:
-    - "8020:80"
+    - "8020:3000"
     environment:
     - CURRENCY_ISO4217=MXN
     - CURRENCY_NAME=MX Peso
