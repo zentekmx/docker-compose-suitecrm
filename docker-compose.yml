@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  openldap:
+    image: zentekmx/openldap:latest
+    container_name: openldap.crm
+    ports:
+    - "3389:389"
+    volumes:
+    - ldap-volume:/var/lib/ldap:Z
+
   mysql:
     image: mysql:5.7
     ports:
@@ -33,9 +41,11 @@ services:
   suitecrm:
     image: zentekmx/suitecrm:${SVERSION}
     links:
+    - openldap
     - mysql
     - elasticsearch
     depends_on:
+    - openldap
     - mysql
     ports:
     - "3000:3000"

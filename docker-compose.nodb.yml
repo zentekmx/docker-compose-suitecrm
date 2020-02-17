@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  openldap:
+    image: zentekmx/openldap:latest
+    container_name: openldap.crm
+    ports:
+    - "3389:389"
+    volumes:
+    - ldap-volume:/var/lib/ldap:Z
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
     ports:
@@ -21,6 +29,7 @@ services:
   suitecrm:
     image: zentekmx/suitecrm:${SVERSION}
     links:
+    - openldap
     - elasticsearch
     ports:
     - "3000:3000"
