@@ -1,6 +1,16 @@
 version: '3'
 
 services:
+  openldap:
+    image: zentekmx/openldap:latest
+    container_name: openldap.crm
+    ports:
+    - "3389:389"
+    volumes:
+    - ldap-volume:/var/lib/ldap:Z
+    labels:
+    - "traefik.enable=false"
+
   mysql:
     image: mysql:5.7
     ports:
@@ -35,14 +45,16 @@ services:
     - "traefik.enable=false"
 
   suitecrm:
-    image: zentekmx/suitecrm:latest
+    image: zentekmx/suitecrm:${SVERSION}
     links:
+    - openldap
     - mysql
     - elasticsearch
     depends_on:
+    - openldap
     - mysql
     ports:
-    - "8020:3000"
+    - "3000:3000"
     environment:
     - CURRENCY_ISO4217=MXN
     - CURRENCY_NAME=MX Peso
@@ -94,6 +106,7 @@ services:
     - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
+  ldap-volume:
   mysql-volume:
   elasticsearch-volume:
   suitecrm-volume:

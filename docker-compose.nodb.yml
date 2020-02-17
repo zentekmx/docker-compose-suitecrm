@@ -50,5 +50,6 @@ services:
     - SYSTEM_NAME=Zentek CRM
 
 volumes:
+  ldap-volume:
   elasticsearch-volume:
   suitecrm-volume:

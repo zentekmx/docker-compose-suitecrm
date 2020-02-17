@@ -1,6 +1,16 @@
 version: '3'
 
 services:
+  openldap:
+    image: zentekmx/openldap:latest
+    container_name: openldap.crm
+    ports:
+    - "3389:389"
+    volumes:
+    - ldap-volume:/var/lib/ldap:Z
+    labels:
+    - "traefik.enable=false"
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
     ports:
@@ -21,11 +31,12 @@ services:
     - "traefik.enable=false"
 
   suitecrm:
-    image: zentekmx/suitecrm:latest
+    image: zentekmx/suitecrm:${SVERSION}
     links:
+    - openldap
     - elasticsearch
     ports:
-    - "8020:3000"
+    - "3000:3000"
     environment:
     - CURRENCY_ISO4217=MXN
     - CURRENCY_NAME=MX Peso
@@ -73,6 +84,7 @@ services:
     - "/var/run/docker.sock:/var/run/docker.sock:ro"
 
 volumes:
+  ldap-volume:
   elasticsearch-volume:
   suitecrm-volume:
   joomla-volume:
